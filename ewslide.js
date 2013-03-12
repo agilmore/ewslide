@@ -1,6 +1,6 @@
 (function($) {
   
-  var ewSlide = function(el, settings){ console.log('Starting...');
+  var ewSlide = function(el, settings){
     
     var self = this;
     
@@ -54,30 +54,33 @@
       var state = calculateSize();
       
       if(slide_number < 0){
-        if(current_slide == 0){
+        if(current_slide == 0 && settings.infiniteScroll){
           slide_number = slides.length - 1;
         }
         else{
           slide_number = 0;
         }
       }
-      slide_number = slide_number % slides.length;
+      
+      if(settings.infiniteScroll){
+    	  slide_number = slide_number % slides.length;
+      }
 
       var new_current_slide = slide_number;
       if(slide_number > (slides.length - state.items)){
         new_current_slide = slides.length - state.items;
-        el.addClass('ew-slide-end');
+        wrapper.addClass('ew-slide-end');
       }
       else{
-        el.removeClass('ew-slide-end');
+    	wrapper.removeClass('ew-slide-end');
       }
       
       // Add class if the slideshow is at the beginning.
       if(slide_number == 0){
-        el.addClass('ew-slide-start');
+        wrapper.addClass('ew-slide-start');
       }
       else{
-        el.removeClass('ew-slide-start');
+    	wrapper.removeClass('ew-slide-start');
       }
 
       var css = {'left': -((settings.itemWidth + (state.margin * 2)) * new_current_slide)};
@@ -160,13 +163,16 @@
   };
   
   $.fn.ewSlide = function(settings) {
-    settings = $.extend(settings, {
+	var defaultSettings = {
       itemWidth: 'auto',
       itemMargin: 'auto',
       minItems: 1,
       responsiveType: 'margin',
-      touchSensitivity: 30
-    });
+      touchSensitivity: 30,
+      infiniteScroll: true
+    };
+	  
+    settings = $.extend({}, defaultSettings, settings);
     
     var instance = new ewSlide(this, settings);
     
