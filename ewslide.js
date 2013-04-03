@@ -14,6 +14,7 @@
     var calculateSize = function(){
       var width = el.parent().width();
       var items = Math.floor(width / settings.itemWidth);
+      items = Math.min(items, slides.length);
       if(items == 1){
         slides.css({
           'margin-left': 0,
@@ -39,13 +40,11 @@
     };
   
     this.next = function(){
-      //console.log('next');
       var state = calculateSize();
       this.goToSlide(current_slide + state.items);
     };
   
     this.previous = function(){
-      //console.log('previous');
       var state = calculateSize();
       this.goToSlide(current_slide - state.items);
     };
@@ -72,7 +71,7 @@
         wrapper.addClass('ew-slide-end');
       }
       else{
-    	wrapper.removeClass('ew-slide-end');
+        wrapper.removeClass('ew-slide-end');
       }
       
       // Add class if the slideshow is at the beginning.
@@ -80,7 +79,7 @@
         wrapper.addClass('ew-slide-start');
       }
       else{
-    	wrapper.removeClass('ew-slide-start');
+        wrapper.removeClass('ew-slide-start');
       }
 
       var css = {'left': -((settings.itemWidth + (state.margin * 2)) * new_current_slide)};
@@ -131,20 +130,16 @@
       //var first_y = 0;
       var last_x = 0;
       //var last_y = 0;
-      $this.bind('touchstart touchmove touchend', {}, function(e){
+      $this.bind('touchstart touchmove touchend touchcancel', {}, function(e){
         e.preventDefault();
-        //console.log(e.type);
         if(e.type == 'touchstart'){
           first_x = e.originalEvent.touches[0].clientX;
-          //first_y = e.originalEvent.touches[0].clientY;
         }
         else if(e.type == 'touchmove'){
           last_x = e.originalEvent.touches[0].clientX;
-          //last_y = e.originalEvent.touches[0].clientY;
         }
-        else if(e.type == 'touchend'){
+        else if(e.type == 'touchend' || e.type == 'touchcancel'){
           var diff = first_x - last_x;
-          //console.log(diff);
           if(diff > settings.touchSensitivity){
             self.next();
           }
@@ -163,7 +158,7 @@
   };
   
   $.fn.ewSlide = function(settings) {
-	var defaultSettings = {
+    var defaultSettings = {
       itemWidth: 'auto',
       itemMargin: 'auto',
       minItems: 1,
