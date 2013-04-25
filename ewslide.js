@@ -114,17 +114,19 @@
         'width': settings.itemWidth
       });
       
-      previous_button = $('<div class="ew-slide-previous">Previous</div>');
-      wrapper.prepend(previous_button);
-      next_button = $('<div class="ew-slide-next">Next</div>');
-      wrapper.append(next_button);
-      
-      previous_button.click(function(){
-        self.previous();
-      });
-      next_button.click(function(){
-        self.next();
-      });
+      if(settings.controlButtons){
+        previous_button = $('<div class="ew-slide-previous">Previous</div>');
+        wrapper.prepend(previous_button);
+        next_button = $('<div class="ew-slide-next">Next</div>');
+        wrapper.append(next_button);
+        
+        previous_button.click(function(){
+          self.previous();
+        });
+        next_button.click(function(){
+          self.next();
+        });
+      }
 
       var first_x = 0;
       //var first_y = 0;
@@ -154,6 +156,10 @@
       });
       
       calculateSize($this, settings);
+      
+      if(settings.autoScroll > 0){
+        window.setInterval(function(){self.next();}, settings.autoScroll);
+      }
     });
   };
   
@@ -164,7 +170,9 @@
       minItems: 1,
       responsiveType: 'margin',
       touchSensitivity: 30,
-      infiniteScroll: true
+      infiniteScroll: true,
+      autoScroll: 0,
+      controlButtons: true,
     };
 	  
     settings = $.extend({}, defaultSettings, settings);
