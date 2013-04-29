@@ -10,21 +10,53 @@
     var previous_button;
     var next_button;
     var current_slide = 0;
+    
+    var hovering = false;
   
     var calculateSize = function(){
       var width = el.parent().width();
-      var items = Math.floor(width / settings.itemWidth);
-      items = Math.min(items, slides.length);
-      if(items == 1){
+      var items;
+      var margin;
+      var itemWidth = settings.itemWidth;
+      
+      if(settings.responsiveType == 'slide-width'){
         slides.css({
-          'margin-left': 0,
-          'margin-right': 0
+          'width': settings.minItemWidth,
+        });
+        var width = el.parent().width();
+        
+        if(settings.minItems == settings.maxItems){
+          items = settings.minItems;
+        }
+        
+        var maxItemWidth = Math.min(settings.maxItemWidth, width);
+        var minItemWidth = Math.max(settings.minItemWidth, width);
+        itemWidth = Math.floor((maxItemWidth + minItemWidth) / 2);
+        
+        if(minItemWidth > maxItemWidth){
+          itemWidth = maxItemWidth;
+        }
+        else{
+          itemWidth = minItemWidth;
+        }
+        
+        slides.css({
+          'width': itemWidth,
         });
         var width = el.parent().width();
       }
-      var margin;
-      if(settings.responsiveType == 'margin'){
-        var totalMargin = width - (items * settings.itemWidth);
+      
+      if(settings.responsiveType == 'margin' || settings.responsiveType == 'slide-width'){
+        items = Math.floor(width / itemWidth);
+        items = Math.min(items, slides.length);
+        if(items == 1){
+          slides.css({
+            'margin-left': 0,
+            'margin-right': 0
+          });
+          width = el.parent().width();
+        }
+        var totalMargin = width - (items * itemWidth);
         margin = totalMargin / (items * 2);
         slides.css({
           'margin-left': margin,
@@ -66,7 +98,7 @@
       }
 
       var new_current_slide = slide_number;
-      if(slide_number > (slides.length - state.items)){
+      if(slide_number >= (slides.length - state.items)){
         new_current_slide = slides.length - state.items;
         wrapper.addClass('ew-slide-end');
       }
@@ -82,7 +114,7 @@
         wrapper.removeClass('ew-slide-start');
       }
 
-      var css = {'left': -((settings.itemWidth + (state.margin * 2)) * new_current_slide)};
+      var css = {'left': -((slides.width() + (state.margin * 2)) * new_current_slide)};
       if(no_animate || $.support.transition){
         el.css(css);
         current_slide = new_current_slide;
@@ -107,12 +139,12 @@
       wrapper = viewport.parent();
       
       slides = $('>li', $this);
-      if(settings.itemWidth == 'auto'){
-        settings.itemWidth = slides.width();
-      }
-      slides.css({
-        'width': settings.itemWidth
-      });
+      //if(settings.itemWidth == 'auto'){
+      //  settings.itemWidth = slides.width();
+      //}
+      //slides.css({
+      //  'width': settings.minItemWidth
+      //});
       
       if(settings.controlButtons){
         previous_button = $('<div class="ew-slide-previous">Previous</div>');
@@ -155,33 +187,52 @@
         self.goToSlide(current_slide, true);
       });
       
-      calculateSize($this, settings);
+      //calculateSize($this, settings);
+      self.goToSlide(0);
       
       if(settings.autoScroll > 0){
-        window.setInterval(function(){self.next();}, settings.autoScroll);
+        window.setInterval(function(){
+          if(!hovering){
+            self.next();
+          }
+        }, settings.autoScroll);
+        
+        wrapper.hover(function(){
+          hovering = true;
+        },
+        function(){
+          hovering = false;
+        });
       }
     });
   };
-  
+
   $.fn.ewSlide = function(settings) {
     var defaultSettings = {
       itemWidth: 'auto',
+      maxItemWidth: 0,
+      minItemWidth: 0,
       itemMargin: 'auto',
       minItems: 1,
-      responsiveType: 'margin',
+      maxItems: -1,
+      responsiveType: 'margin', // margin|slide-width
       touchSensitivity: 30,
       infiniteScroll: true,
       autoScroll: 0,
       controlButtons: true,
     };
-	  
+
     settings = $.extend({}, defaultSettings, settings);
-    
-    var instance = new ewSlide(this, settings);
-    
+
+    this.each(function(){
+      var $this = $(this);
+      var instance = new ewSlide($this, settings);
+      $this.data('ewslide', instance);
+    });
+
     return this;
   };
-  
+
   // jQuery.support.transition
   // to verify that CSS3 transition is supported (or any of its browser-specific implementations)
   // From: https://gist.github.com/jonraasch/373874
