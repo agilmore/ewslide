@@ -19,6 +19,12 @@
       var margin;
       var itemWidth = settings.itemWidth;
       
+      if(settings.responsiveType == 'margin'){
+        if(itemWidth == 'auto'){
+          itemWidth = slides.width();
+        }
+      }
+      
       if(settings.responsiveType == 'slide-width'){
         slides.css({
           'width': settings.minItemWidth,
@@ -102,10 +108,6 @@
         new_current_slide = slides.length - state.items;
         wrapper.addClass('ew-slide-end');
       }
-      else if(slides.length == state.items){
-        new_current_slide = 0;
-        wrapper.addClass('ew-slide-end');
-      }
       else{
         wrapper.removeClass('ew-slide-end');
       }
@@ -141,14 +143,7 @@
       var $this = $(this);
       viewport = $this.parent();
       wrapper = viewport.parent();
-      
       slides = $('>li', $this);
-      //if(settings.itemWidth == 'auto'){
-      //  settings.itemWidth = slides.width();
-      //}
-      //slides.css({
-      //  'width': settings.minItemWidth
-      //});
       
       if(settings.controlButtons){
         previous_button = $('<div class="ew-slide-previous">Previous</div>');
