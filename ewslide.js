@@ -102,12 +102,16 @@
         new_current_slide = slides.length - state.items;
         wrapper.addClass('ew-slide-end');
       }
+      else if(slides.length == state.items){
+        new_current_slide = 0;
+        wrapper.addClass('ew-slide-end');
+      }
       else{
         wrapper.removeClass('ew-slide-end');
       }
       
       // Add class if the slideshow is at the beginning.
-      if(slide_number == 0){
+      if(new_current_slide == 0){
         wrapper.addClass('ew-slide-start');
       }
       else{
